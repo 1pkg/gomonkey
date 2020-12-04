@@ -1,3 +1,3 @@
-module bou.ke/monkey
+module github.com/1pkg/gomonkey
 
-go 1.13
+go 1.15
