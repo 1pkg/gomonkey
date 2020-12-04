@@ -131,3 +131,25 @@ func unpatchValue(target reflect.Value) bool {
 func unpatch(target uintptr, p patch) {
 	copyToLocation(target, p.originalBytes)
 }
+
+// PermanentDecorate decorates function target call
+// with replacement function call by replacing
+// original function starting at offset with padding assembly bytes
+func PermanentDecorate(t, r interface{}, offset, padding int) {
+	target := reflect.ValueOf(t)
+	replacement := reflect.ValueOf(r)
+	if target.Kind() != reflect.Func {
+		panic("target has to be a Func")
+	}
+	if replacement.Kind() != reflect.Func {
+		panic("replacement has to be a Func")
+	}
+	if target.Type() != replacement.Type() {
+		panic(fmt.Sprintf("target and replacement have to have the same type %s != %s", target.Type(), replacement.Type()))
+	}
+	// permanently patch with call function assembly and nope paddings
+	ptr := target.Pointer() + uintptr(offset)
+	callData := callFunctionBody((uintptr)(getPtr(replacement)))
+	callData = padWithNope(callData, padding)
+	copyToLocation(ptr, callData)
+}
