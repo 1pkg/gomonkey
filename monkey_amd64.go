@@ -17,8 +17,8 @@ func jmpToFunctionValue(to uintptr) []byte {
 }
 
 // Assembles a call to a function body
-func callFunctionBody(to uintptr) []byte {
-	return []byte{
+func callFunctionBody(to uintptr, before, after []byte) []byte {
+	load := []byte{
 		0x48, 0xBA,
 		byte(to),
 		byte(to >> 8),
@@ -28,8 +28,14 @@ func callFunctionBody(to uintptr) []byte {
 		byte(to >> 40),
 		byte(to >> 48),
 		byte(to >> 56), // movabs rdx,to
-		0xFF, 0x12,     // call QWORD PTR [rdx]
 	}
+	call := []byte{0xFF, 0x12} // call QWORD PTR [rdx]
+	return join(
+		load,
+		before,
+		call,
+		after,
+	)
 }
 
 // Pads assembly function body with nope instructions

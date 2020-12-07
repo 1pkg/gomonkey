@@ -135,7 +135,7 @@ func unpatch(target uintptr, p patch) {
 // PermanentDecorate decorates function target call
 // with replacement function call by replacing
 // original function starting at offset with padding assembly bytes
-func PermanentDecorate(t, r interface{}, offset, padding int) {
+func PermanentDecorate(t, r interface{}, offset, padding int, before, after []byte) {
 	target := reflect.ValueOf(t)
 	replacement := reflect.ValueOf(r)
 	if target.Kind() != reflect.Func {
@@ -149,7 +149,7 @@ func PermanentDecorate(t, r interface{}, offset, padding int) {
 	}
 	// permanently patch with call function assembly and nope paddings
 	ptr := target.Pointer() + uintptr(offset)
-	callData := callFunctionBody((uintptr)(getPtr(replacement)))
+	callData := callFunctionBody((uintptr)(getPtr(replacement)), before, after)
 	callData = padWithNope(callData, padding)
 	copyToLocation(ptr, callData)
 }

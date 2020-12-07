@@ -29,3 +29,11 @@ func replaceFunction(from, to uintptr) (original []byte) {
 	copyToLocation(from, jumpData)
 	return
 }
+
+// joins multiple code buffers
+func join(csl ...[]byte) (res []byte) {
+	for _, code := range csl {
+		res = append(res, code...)
+	}
+	return
+}
